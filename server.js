@@ -3,26 +3,37 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
-const contactRoutes = require("./routes/contactRoutes");
-const courseRoutes = require("./routes/courseRoutes");
-const enrollmentRoutes = require("./routes/enrollmentRoutes");
-const userRoutes = require("./routes/userRoutes");
-const authRoutes = require("./routes/authRoutes");
-
 dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000", 
+  process.env.FRONTEND_URL 
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, 
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
 
 app.use(express.json());
 
-// Routes
+
+const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
+const contactRoutes = require("./routes/contactRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const enrollmentRoutes = require("./routes/enrollmentRoutes");
+
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
@@ -34,7 +45,7 @@ app.get("/", (req, res) => {
   res.send("🚀 SkillNest API running");
 });
 
-// MongoDB connection
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -44,6 +55,7 @@ mongoose
     console.error("❌ MongoDB Connection Error:", err);
     process.exit(1);
   });
+
 
 const PORT = process.env.PORT || 5000;
 
