@@ -2,10 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+
 const contactRoutes = require("./routes/contactRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
-
+const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 dotenv.config();
 
@@ -13,29 +15,26 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", 
+    origin: process.env.FRONTEND_URL, 
     credentials: true,
   })
 );
 
 app.use(express.json());
 
-
-const userRoutes = require("./routes/userRoutes");
-const authRoutes = require("./routes/authRoutes");
-
+// Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 
-
 // Test route
 app.get("/", (req, res) => {
   res.send("🚀 SkillNest API running");
 });
 
+// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
